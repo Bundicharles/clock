@@ -356,28 +356,43 @@ backToClockBtn.addEventListener('mouseenter', () => swipeContainer.classList.rem
 const installBtn = document.getElementById('install-pwa-btn');
 let deferredPrompt;
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (installBtn) installBtn.classList.remove('hidden');
-});
+// iOS Detection
+const isIos = () => {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent);
+};
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
 if (installBtn) {
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      installBtn.classList.add('hidden');
-    }
+  // If iOS and not installed, show button with instructions
+  if (isIos() && !isInStandaloneMode()) {
+    installBtn.classList.remove('hidden');
+    installBtn.addEventListener('click', () => {
+      alert('To install on iOS: tap the Share button at the bottom of Safari, then select "Add to Home Screen".');
+    });
+  }
+
+  // Standard Chrome/Android install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.classList.remove('hidden');
+    
+    // Ensure we don't bind multiple times
+    installBtn.onclick = async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') installBtn.classList.add('hidden');
+      deferredPrompt = null;
+    };
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.classList.add('hidden');
     deferredPrompt = null;
   });
 }
-
-window.addEventListener('appinstalled', () => {
-  if (installBtn) installBtn.classList.add('hidden');
-  deferredPrompt = null;
-});
 
 // Register SW
 if ('serviceWorker' in navigator) {
