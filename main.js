@@ -352,6 +352,33 @@ if (swipeHint) {
 backToClockBtn.addEventListener('click', () => swipeContainer.classList.remove('show-diary'));
 backToClockBtn.addEventListener('mouseenter', () => swipeContainer.classList.remove('show-diary'));
 
+// PWA Install Button Logic
+const installBtn = document.getElementById('install-pwa-btn');
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (installBtn) installBtn.classList.remove('hidden');
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      installBtn.classList.add('hidden');
+    }
+    deferredPrompt = null;
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  if (installBtn) installBtn.classList.add('hidden');
+  deferredPrompt = null;
+});
+
 // Register SW
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
