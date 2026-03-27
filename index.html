@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#1a1a1a" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    
+    <title>Glassmorphic Smartwatch PWA</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- Full screen stop alarm overlay -->
+    <div id="stop-alarm-overlay" class="hidden">
+      <h1>ALARM RINGING</h1>
+      <p id="alarm-message">Time's Up!</p>
+      <button id="stop-alarm-btn" class="glass-btn primary-btn">STOP ALARM</button>
+    </div>
+
+    <div id="app">
+      <div id="app-container" class="glass-container swipe-container">
+        <!-- Clock Page (Home) -->
+        <div class="page clock-page" id="clock-page">
+          <div class="clock-glass">
+            <div class="analog-clock" id="analog-clock">
+              <div class="hand hour-hand" id="hour-hand"></div>
+              <div class="hand minute-hand" id="minute-hand"></div>
+              <div class="hand second-hand" id="second-hand"></div>
+              <div class="center-dot"></div>
+            </div>
+            <div class="digital-clock" id="digital-clock">00:00:00</div>
+          </div>
+          
+          <div class="alarms-section">
+            <ul id="alarms-list" class="glass-list alarm-list"></ul>
+            <div class="add-alarm-controls">
+              <input type="time" id="new-alarm-time" aria-label="Set Alarm Time">
+              <button id="add-alarm-btn" class="glass-btn primary-btn" title="Add Alarm">+</button>
+              <label class="glass-btn file-upload-btn" title="Set Custom Sound">
+                🎵 <input type="file" id="custom-sound-input" accept="audio/*">
+              </label>
+            </div>
+          </div>
+          
+          <div class="swipe-hint">Swipe left for Diary &rarr;</div>
+        </div>
+
+        <!-- Diary Page -->
+        <div class="page diary-page" id="diary-page">
+          <div class="diary-header">
+            <button id="back-to-clock" class="glass-btn">&larr; Clock</button>
+            <h2>My Diary</h2>
+          </div>
+          
+          <div class="diary-content">
+            <div class="section today-diary">
+              <div class="section-header">
+                <h3>Diary Entry</h3>
+                <input type="date" id="diary-date" class="glass-input date-picker">
+              </div>
+              <textarea id="daily-entry" class="glass-input" placeholder="Type your notes here..."></textarea>
+            </div>
+            
+            <div class="section future-events">
+              <h3>Future Events</h3>
+              <ul id="events-list" class="glass-list"></ul>
+              
+              <form id="add-event-form" class="hidden glass-form">
+                <input type="text" id="event-title-input" class="glass-input" placeholder="Event Name" required>
+                <input type="time" id="event-time-input" class="glass-input" required>
+                <div class="form-actions">
+                  <button type="button" id="cancel-event-btn" class="glass-btn">Cancel</button>
+                  <button type="submit" class="glass-btn primary-btn">Save Event</button>
+                </div>
+              </form>
+              
+              <button id="show-add-event-btn" class="glass-btn primary-btn">+ Add Event</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Audio element for alarm -->
+    <audio id="alarm-audio" src="/alarm.mp3" preload="auto" loop></audio>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

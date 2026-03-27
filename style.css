@@ -1,0 +1,320 @@
+:root {
+  --bg-gradient: linear-gradient(135deg, #1c1f2e, #0e111d);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --text-main: #e0e0e0;
+  --text-muted: #8c8c8c;
+  --accent-color: #4facfe;
+  --accent-glow: rgba(79, 172, 254, 0.5);
+  --alarm-glow: rgba(255, 59, 48, 0.6);
+  --page-transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #0e111d;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(79, 172, 254, 0.4), transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(255, 59, 48, 0.2), transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.04) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 2px, transparent 2px),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 
+    100% 100%,
+    100% 100%,
+    100px 100px, 
+    100px 100px, 
+    20px 20px, 
+    20px 20px;
+  background-position: 
+    0 0, 
+    0 0, 
+    -2px -2px, 
+    -2px -2px, 
+    -1px -1px, 
+    -1px -1px;
+  color: var(--text-main);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  max-width: 400px;
+  max-height: 800px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 40px;
+  box-shadow: var(--glass-shadow);
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.02), transparent);
+}
+
+@media (min-width: 450px) {
+  #app { height: 90vh; }
+}
+
+.swipe-container {
+  display: flex;
+  width: 200%;
+  height: 100%;
+  transition: transform var(--page-transition);
+  transform: translateX(0);
+}
+
+.swipe-container.show-diary {
+  transform: translateX(-50%);
+}
+
+.page {
+  width: 50%;
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Glassmorphic Utilities */
+.glass-container { background: transparent; }
+
+.glass-panel, .clock-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 50%;
+}
+
+.glass-btn {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  outline: none;
+}
+
+.glass-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.glass-btn.active {
+  background: rgba(79, 172, 254, 0.3);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.glass-input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  padding: 12px;
+  border-radius: 12px;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+}
+.glass-input:focus { border-color: var(--accent-color); }
+
+.file-upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+.file-upload-btn input[type="file"] { display: none; }
+
+/* Stop Alarm Banner */
+#stop-alarm-overlay {
+  position: absolute;
+  top: -100px; left: 10px; right: 10px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#stop-alarm-overlay.active {
+  top: 20px;
+  opacity: 1;
+}
+#stop-alarm-overlay h1 {
+  color: #ff4c4c;
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+  text-shadow: 0 0 10px rgba(255, 50, 50, 0.8);
+  animation: pulseText 1s infinite alternate;
+}
+#stop-alarm-overlay p {
+  font-size: 1rem;
+  margin-bottom: 15px;
+  color: #fff;
+}
+#stop-alarm-btn {
+  font-size: 1rem;
+  padding: 10px 30px;
+  border-radius: 20px;
+  background: rgba(255, 59, 48, 0.4);
+  border: 1px solid rgba(255, 59, 48, 0.8);
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+#stop-alarm-btn:hover { background: rgba(255, 59, 48, 0.7); }
+
+/* Clock Page */
+.clock-glass {
+  width: 280px; height: 280px;
+  margin-top: 40px; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.analog-clock { width: 100%; height: 100%; border-radius: 50%; position: relative; }
+
+.hand {
+  position: absolute; bottom: 50%; left: 50%;
+  transform-origin: bottom center;
+  background: var(--text-main);
+  border-radius: 4px;
+}
+
+.hour-hand { width: 6px; height: 25%; background: #fff; z-index: 1; }
+.minute-hand { width: 4px; height: 35%; background: #e0e0e0; z-index: 2; }
+.second-hand { width: 2px; height: 40%; background: var(--accent-color); z-index: 3; }
+
+.center-dot {
+  position: absolute; top: 50%; left: 50%;
+  width: 12px; height: 12px;
+  background: var(--accent-color); border-radius: 50%;
+  transform: translate(-50%, -50%); z-index: 6;
+}
+
+.tick-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0; }
+.tick {
+  position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
+  width: 2px; height: 8px; background: rgba(255, 255, 255, 0.2); border-radius: 2px;
+}
+.tick.hour-tick { width: 4px; height: 14px; background: rgba(255, 255, 255, 0.6); }
+
+.digital-clock {
+  position: absolute; z-index: 5;
+  font-size: 2rem; font-weight: 300; letter-spacing: 2px;
+  background: rgba(0, 0, 0, 0.4); padding: 8px 16px; border-radius: 20px;
+  backdrop-filter: blur(4px); text-shadow: 0 0 8px rgba(255,255,255,0.3);
+  transition: color 1s, text-shadow 1s;
+}
+
+.clock-glass.alarming { animation: pulseAlarmContainer 2s infinite alternate; }
+.digital-clock.alarming { animation: pulseAlarmText 2s infinite alternate; }
+
+@keyframes pulseAlarmContainer {
+  0% { box-shadow: 0 0 15px rgba(0, 150, 255, 0.4); border-color: rgba(0, 150, 255, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(255, 150, 0, 0.5); border-color: rgba(255, 150, 0, 0.4); }
+  100% { box-shadow: 0 0 35px rgba(255, 50, 50, 0.6); border-color: rgba(255, 50, 50, 0.5); }
+}
+@keyframes pulseAlarmText {
+  0% { color: #80c0ff; text-shadow: 0 0 10px #80c0ff; }
+  50% { color: #ffd280; text-shadow: 0 0 15px #ffd280; }
+  100% { color: #ff8080; text-shadow: 0 0 20px #ff8080; }
+}
+
+.alarms-section {
+  width: 100%; margin-top: auto; margin-bottom: 2rem;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.add-alarm-controls {
+  display: flex; gap: 8px; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.05); padding: 10px 15px;
+  border-radius: 16px; backdrop-filter: blur(10px); width: 100%;
+}
+.add-alarm-controls input[type="time"] { background: transparent; color: #fff; border: none; font-size: 1.1rem; outline: none; width: 100%; text-align: center; }
+.add-alarm-controls input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+.alarm-list {
+  max-height: 120px; overflow-y: auto; overflow-x: hidden;
+  margin-bottom: 0; 
+}
+.alarm-list::-webkit-scrollbar { width: 4px; }
+.alarm-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+.alarm-list li { padding: 6px 12px; }
+
+.swipe-hint {
+  font-size: 0.8rem; color: var(--text-muted); opacity: 0.7;
+  position: absolute; bottom: 10px; padding: 10px 20px;
+  cursor: pointer; transition: opacity 0.3s;
+  animation: float 2s infinite ease-in-out; z-index: 10;
+}
+.swipe-hint:hover { opacity: 1; color: var(--accent-color); animation: none; transform: translateX(5px); }
+@keyframes float { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
+
+/* Diary Page */
+.diary-header { width: 100%; display: flex; align-items: center; margin-bottom: 20px; padding-top: 20px; }
+.diary-header h2 { flex-grow: 1; text-align: center; font-weight: 300; margin-right: 60px; }
+
+.diary-content { width: 100%; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; padding-bottom: 20px; }
+.diary-content::-webkit-scrollbar { width: 4px; }
+.diary-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+.section { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 16px; border: 1px solid var(--glass-border); }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.section h3 { font-size: 1rem; font-weight: 400; color: var(--accent-color); }
+
+.date-picker { width: auto; padding: 6px; font-size: 0.85rem; border-radius: 8px; }
+.date-picker::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+#daily-entry {
+  min-height: 250px;
+  margin-top: 10px;
+  background-color: rgba(255, 255, 255, 0.08);
+  /* Lined paper effect */
+  background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(255, 255, 255, 0.15) 27px, rgba(255, 255, 255, 0.15) 28px);
+  background-attachment: local;
+  line-height: 28px;
+  padding: 8px 15px;
+  font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive, sans-serif;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
+  color: var(--text-main);
+}
+
+.glass-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+.glass-list li { background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+.event-info { display: flex; flex-direction: column; }
+.event-title { font-weight: 500; font-size: 0.95rem; }
+.event-time { font-size: 0.8rem; color: var(--text-muted); }
+
+.hidden { display: none !important; }
+
+.glass-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+.form-actions { display: flex; gap: 10px; }
+.form-actions button { flex: 1; }
+
+.primary-btn { width: 100%; background: rgba(79, 172, 254, 0.2); border-color: rgba(79, 172, 254, 0.4); }
+.primary-btn:hover { background: rgba(79, 172, 254, 0.4); }
